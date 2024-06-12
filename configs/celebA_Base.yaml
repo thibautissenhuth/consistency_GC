@@ -1,0 +1,35 @@
+name_exp: celebA_Base
+dataset: celeba
+train_w_score: false
+workers: 4
+batch_size: 16
+image_size: 64
+lr: 0.0001
+ngpu: 1
+optimizer: lion
+train_config:
+  _target_:  utils.Train_config
+  n_train_steps: 150000
+  diffusion_type: interpolation
+  sigma_min: 0.002
+  sigma_max: 1
+  sigma_data: 0.5
+  s0: 10
+  s1: 1280
+  ema_decay: 0.9999
+  ema_start: 0
+  generator_induced_traj: False
+  generator_induced_traj_ema: False
+generator:
+  _target_: edm_networks.ConsistencyPrecond
+  img_resolution: 64
+  img_channels: 3
+  sigma_min: 0.002
+  sigma_max: 1
+  sigma_data: 0.5
+  model_channels: 128
+  dropout: [0.05,0.05,0.1,0.2]
+  num_blocks: [2,3,4,5]
+  embedding_type: positional
+  augment_dim: 0
+  channel_mult: [1,2,2,2]
