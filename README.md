@@ -18,7 +18,7 @@
 Official implementation of the paper *Improving Consistency Models with Generator-Induced Coupling* (Thibaut Issenhuth, Ludovic Dos Santos, Jean-Yves Franceschi, Alain Rakotomamonjy).
 
 
-## [Preprint](https://arxiv.org/)
+## [Preprint](https://arxiv.org/abs/2406.09570) 
 
 
 ## Requirements
@@ -39,3 +39,14 @@ python train_consistency.py --cfg cifar10_GenInduced_ema_mix50 --device 0 --eval
 ```
 
 The *mix_gen_induced_traj* parameter in config file handles the percentage of generator-induced trajectories per batch. 
+
+## References
+If you find the code useful for your research, please consider citing:
+```bib
+@article{issenhuth2024improving,
+  title={Improving Consistency Models with Generator-Induced Coupling},
+  author={Issenhuth, Thibaut and Santos, Ludovic Dos and Franceschi, Jean-Yves and Rakotomamonjy, Alain},
+  journal={arXiv preprint arXiv:2406.09570},
+  year={2024}
+}
+```
