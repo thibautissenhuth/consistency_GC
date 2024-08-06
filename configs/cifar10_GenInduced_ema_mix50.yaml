@@ -2,7 +2,7 @@ name_exp: cifar10_GenInduced_ema_mix50
 dataset: cifar10
 train_w_score: false
 workers: 16
-batch_size: 256
+batch_size: 512
 image_size: 32
 lr: 0.0001
 ngpu: 1
