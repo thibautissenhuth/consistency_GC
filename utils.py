@@ -86,6 +86,21 @@ def get_mix_value(current_training_step, total_training_steps, start_value, end_
 def append_zero(x):
     return torch.cat([x, x.new_zeros([1])])
 
+def loss_image(set_A, set_B, cfg):
+    if cfg.loss_type == 'huber':
+        b, c, h, w = set_A.shape
+        c = 0.00054 * np.sqrt(c * h * w) #0.03
+        set_A = set_A.view(len(set_A),-1)
+        set_B = set_B.view(len(set_B),-1)
+        dists = torch.sqrt(((set_A - set_B)**2).sum(dim=-1) + c**2) - c
+    elif cfg.loss_type == 'l2':
+        set_A = set_A.view(len(set_A),-1)
+        set_B = set_B.view(len(set_B),-1)
+        dists = ((set_A - set_B)**2).sum(dim=-1)
+    elif cfg.loss_type == 'lpips':
+        dists = loss_lpips(set_A, set_B)
+    return dists
+
 def get_sigmas_karras(num_timesteps, sigma_min, sigma_max, rho=7.0, device="cpu"):
     """Constructs the noise schedule of Karras et al. (2022)."""
     '''ramp = torch.linspace(0, 1, int(n))

@@ -28,7 +28,7 @@ import torchvision.transforms as transforms
 import numpy as np
 from datasets import load_dataset
 
-from utils import  get_next_batch, eval_fid, \
+from utils import  get_next_batch, eval_fid, loss_image \
                 get_sigmas_karras, lognormal_timestep_distribution, improved_timesteps_schedule, improved_loss_weighting, \
                 get_mix_value
 
@@ -195,21 +195,6 @@ G_losses = []
 D_losses = []
 loss_lpips = lpips.LPIPS(net='alex').to(device)
 
-def loss_image(set_A, set_B, cfg):
-    if cfg.loss_type == 'huber':
-        b, c, h, w = set_A.shape
-        c = 0.00054 * np.sqrt(c * h * w) #0.03
-        set_A = set_A.view(len(set_A),-1)
-        set_B = set_B.view(len(set_B),-1)
-        dists = torch.sqrt(((set_A - set_B)**2).sum(dim=-1) + c**2) - c
-    elif cfg.loss_type == 'l2':
-        set_A = set_A.view(len(set_A),-1)
-        set_B = set_B.view(len(set_B),-1)
-        dists = ((set_A - set_B)**2).sum(dim=-1)
-    elif cfg.loss_type == 'lpips':
-        dists = loss_lpips(set_A, set_B)
-    return dists
-
 print("Starting Training...")
 ### TRAINING ####
 for i_train in range(train_cfg.n_train_steps):
@@ -273,15 +258,17 @@ for i_train in range(train_cfg.n_train_steps):
         batch_z_ip1 = batch_real_data + sigmas_ip1.view(sigmas_ip1.shape[0],1,1,1) * batch_z
 
     optimizer.zero_grad()
-
+    rng_state = torch.cuda.get_rng_state(device)
     if train_cfg.diffusion_type == 'interpolation':
         with torch.no_grad():
             generations = unet(batch_z_i, steps_proportion.flatten())
+        torch.cuda.set_rng_state(rng_state, device=device)
         generations_1 = unet(batch_z_ip1, steps_1_proportion.flatten())
         loss_batch = loss_image(generations, generations_1, train_cfg)
     elif train_cfg.diffusion_type == 'var_exp':
         with torch.no_grad():
             generations = unet(batch_z_i, sigmas_i)
+        torch.cuda.set_rng_state(rng_state, device=device)
         generations_1 = unet(batch_z_ip1, sigmas_ip1)
         loss_batch = loss_image(generations, generations_1, train_cfg)
 
