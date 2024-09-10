@@ -28,7 +28,7 @@ import torchvision.transforms as transforms
 import numpy as np
 from datasets import load_dataset
 
-from utils import  get_next_batch, eval_fid, loss_image \
+from utils import  get_next_batch, eval_fid, loss_image, \
                 get_sigmas_karras, lognormal_timestep_distribution, improved_timesteps_schedule, improved_loss_weighting, \
                 get_mix_value
 

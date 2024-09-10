@@ -10,9 +10,9 @@ optimizer: lion
 train_config:
   _target_:  utils.Train_config
   n_train_steps: 100000
-  diffusion_type: interpolation
+  diffusion_type: var_exp
   sigma_min: 0.002
-  sigma_max: 1
+  sigma_max: 80
   sigma_data: 0.5
   s0: 10
   s1: 1280
@@ -25,7 +25,7 @@ generator:
   img_resolution: 32
   img_channels: 3
   sigma_min: 0.002
-  sigma_max: 1
+  sigma_max: 80
   sigma_data: 0.5
   model_channels: 128
   dropout: 0.3

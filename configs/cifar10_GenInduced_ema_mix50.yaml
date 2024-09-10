@@ -2,7 +2,7 @@ name_exp: cifar10_GenInduced_ema_mix50
 dataset: cifar10
 train_w_score: false
 workers: 16
-batch_size: 512
+batch_size: 2
 image_size: 32
 lr: 0.0001
 ngpu: 1
@@ -10,9 +10,9 @@ optimizer: lion
 train_config:
   _target_:  utils.Train_config
   n_train_steps: 100000
-  diffusion_type: interpolation
+  diffusion_type: var_exp
   sigma_min: 0.002
-  sigma_max: 1
+  sigma_max: 80
   sigma_data: 0.5
   s0: 10
   s1: 1280
@@ -27,10 +27,10 @@ generator:
   img_resolution: 32
   img_channels: 3
   sigma_min: 0.002
-  sigma_max: 1
+  sigma_max: 80
   sigma_data: 0.5
   model_channels: 128
-  dropout: 0.3
+  dropout: 0.
   num_blocks: 3
   embedding_type: positional
   augment_dim: 0
