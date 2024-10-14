@@ -363,7 +363,7 @@ class SongUNet(torch.nn.Module):
 
             if isinstance(dropout, list):
                 dropout_i = dropout[level]
-            elif isinstance(num_blocks, int):
+            elif isinstance(dropout, int):
                 dropout_i = dropout
 
             res = img_resolution >> level
@@ -397,7 +397,7 @@ class SongUNet(torch.nn.Module):
 
             if isinstance(dropout, list):
                 dropout_i = dropout[level]
-            elif isinstance(num_blocks, int):
+            elif isinstance(dropout, int):
                 dropout_i = dropout
 
             res = img_resolution >> level
