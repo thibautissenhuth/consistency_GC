@@ -1,23 +1,21 @@
-name_exp: imagenet_Base
+name_exp: imagenet_GC_mix50
 dataset: imagenet
 train_w_score: false
 workers: 16
-batch_size: 64
+batch_size: 512
 image_size: 32
-lr: 0.00005
+lr: 0.00008
 ngpu: 1
 optimizer: lion
 train_config:
   _target_:  utils.Train_config
-  diffusion_type: interpolation
   n_train_steps: 150000
   sigma_min: 0.002
-  sigma_max: 1
+  sigma_max: 80
   sigma_data: 0.5
   s0: 10
   s1: 1280
   ema_decay: 0.9999
-  ema_start: 20000
   generator_induced_traj: True
   generator_induced_traj_ema: True
   start_generator_induced_traj: 0
@@ -27,11 +25,11 @@ generator:
   img_resolution: 32
   img_channels: 3
   sigma_min: 0.002
-  sigma_max: 1
+  sigma_max: 80
   sigma_data: 0.5
   model_channels: 128
-  dropout: [0.1,0.3,0.3]
-  num_blocks: [4,5,7]
+  dropout: 0.
+  num_blocks: [3,5,7]
   embedding_type: positional
   augment_dim: 0
   channel_mult: [1,1,2]

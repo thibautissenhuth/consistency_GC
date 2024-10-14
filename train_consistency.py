@@ -209,68 +209,37 @@ for i_train in range(train_cfg.n_train_steps):
     batch_z = torch.randn_like(batch_real_data)
     current_n_step = improved_timesteps_schedule(i_train, train_cfg.n_train_steps,
                                     initial_timesteps = train_cfg.s0, final_timesteps = train_cfg.s1)
-    if train_cfg.diffusion_type == 'interpolation':
-        sigmas = get_sigmas_karras(current_n_step, train_cfg.sigma_min, 80)
-        steps = lognormal_timestep_distribution(len(batch_real_data), sigmas)
-        loss_weights = improved_loss_weighting(sigmas)[steps].to(batch_real_data.device)
-        sigmas_prop = sigmas / (sigmas + 1)
-        steps_proportion = sigmas_prop[steps].view(len(batch_real_data),1,1,1).to(batch_real_data.device)
-        steps_1_proportion = sigmas_prop[steps + 1].view(len(batch_real_data),1,1,1).to(batch_real_data.device)
-        batch_z_i = batch_z * steps_proportion + batch_real_data * (1 - steps_proportion)
-        if train_cfg.generator_induced_traj==True:
-            mixing_value = get_mix_value(i_train, train_cfg.n_train_steps, \
-                        train_cfg.mix_gen_induced_traj, train_cfg.mix_gen_induced_traj_end)
-            mask = (torch.rand((b_size,1,1,1)) > mixing_value).to(device)
-            with torch.no_grad():
-                batch_real_data_standard = batch_real_data
-                if train_cfg.generator_induced_traj_ema:
-                    batch_real_data = unet_ema(batch_z_i, steps_proportion.flatten())
-                else:
-                    batch_real_data = unet(batch_z_i, steps_proportion.flatten())
+    sigmas = get_sigmas_karras(current_n_step, train_cfg.sigma_min, train_cfg.sigma_max)
+    steps = lognormal_timestep_distribution(len(batch_real_data), sigmas)
+    loss_weights = improved_loss_weighting(sigmas)[steps].to(batch_real_data.device)
+    sigmas_i = sigmas[steps].to(batch_real_data.device)
+    sigmas_ip1 = sigmas[steps + 1].to(batch_real_data.device)
+    batch_z_i = batch_real_data + sigmas_i.view(sigmas_i.shape[0],1,1,1) * batch_z
 
-                if mixing_value > 0.:
-                    batch_real_data = mask * batch_real_data + ~mask * batch_real_data_standard
+    if train_cfg.generator_induced_traj==True:
+        mixing_value = get_mix_value(i_train, train_cfg.n_train_steps, \
+                    train_cfg.mix_gen_induced_traj, train_cfg.mix_gen_induced_traj_end)
+        mask = (torch.rand((b_size,1,1,1)) > mixing_value).to(device)
+        with torch.no_grad():
+            batch_real_data_standard = batch_real_data
+            if train_cfg.generator_induced_traj_ema:
+                batch_real_data = unet_ema(batch_z_i, sigmas_i)
+            else:
+                batch_real_data = unet(batch_z_i, sigmas_i)
+            if mixing_value > 0.:
+                batch_real_data = mask * batch_real_data + ~mask * batch_real_data_standard
+            batch_z_i = batch_real_data + sigmas_i.view(sigmas_i.shape[0],1,1,1) * batch_z
 
-                batch_z_i = batch_z * steps_proportion + batch_real_data * (1 - steps_proportion)
-        batch_z_ip1 = batch_z * steps_1_proportion + batch_real_data * (1 - steps_1_proportion)
-    elif train_cfg.diffusion_type == 'var_exp':
-        sigmas = get_sigmas_karras(current_n_step, train_cfg.sigma_min, train_cfg.sigma_max)
-        steps = lognormal_timestep_distribution(len(batch_real_data), sigmas)
-        loss_weights = improved_loss_weighting(sigmas)[steps].to(batch_real_data.device)
-        sigmas_i = sigmas[steps].to(batch_real_data.device)
-        sigmas_ip1 = sigmas[steps + 1].to(batch_real_data.device)
-        batch_z_i = batch_real_data + sigmas_i.view(sigmas_i.shape[0],1,1,1) * batch_z
-
-        if train_cfg.generator_induced_traj==True:
-            mixing_value = get_mix_value(i_train, train_cfg.n_train_steps, \
-                        train_cfg.mix_gen_induced_traj, train_cfg.mix_gen_induced_traj_end)
-            mask = (torch.rand((b_size,1,1,1)) > mixing_value).to(device)
-            with torch.no_grad():
-                batch_real_data_standard = batch_real_data
-                if train_cfg.generator_induced_traj_ema:
-                    batch_real_data = unet_ema(batch_z_i, sigmas_i)
-                else:
-                    batch_real_data = unet(batch_z_i, sigmas_i)
-                if mixing_value > 0.:
-                    batch_real_data = mask * batch_real_data + ~mask * batch_real_data_standard
-                batch_z_i = batch_real_data + sigmas_i.view(sigmas_i.shape[0],1,1,1) * batch_z
-
-        batch_z_ip1 = batch_real_data + sigmas_ip1.view(sigmas_ip1.shape[0],1,1,1) * batch_z
+    batch_z_ip1 = batch_real_data + sigmas_ip1.view(sigmas_ip1.shape[0],1,1,1) * batch_z
 
     optimizer.zero_grad()
     rng_state = torch.cuda.get_rng_state(device)
-    if train_cfg.diffusion_type == 'interpolation':
-        with torch.no_grad():
-            generations = unet(batch_z_i, steps_proportion.flatten())
-        torch.cuda.set_rng_state(rng_state, device=device)
-        generations_1 = unet(batch_z_ip1, steps_1_proportion.flatten())
-        loss_batch = loss_image(generations, generations_1, train_cfg)
-    elif train_cfg.diffusion_type == 'var_exp':
-        with torch.no_grad():
-            generations = unet(batch_z_i, sigmas_i)
-        torch.cuda.set_rng_state(rng_state, device=device)
-        generations_1 = unet(batch_z_ip1, sigmas_ip1)
-        loss_batch = loss_image(generations, generations_1, train_cfg)
+    
+    with torch.no_grad():
+        generations = unet(batch_z_i, sigmas_i)
+    torch.cuda.set_rng_state(rng_state, device=device)
+    generations_1 = unet(batch_z_ip1, sigmas_ip1)
+    loss_batch = loss_image(generations, generations_1, train_cfg)
 
     loss = (loss_weights * loss_batch).mean()
 
@@ -285,10 +254,7 @@ for i_train in range(train_cfg.n_train_steps):
 
     if (i_train % args.eval_freq == 0) or (i_train == train_cfg.n_train_steps):
         fig, ax = plt.subplots( nrows=1, ncols=1 )
-        if train_cfg.diffusion_type == 'var_exp':
-            ax.scatter(sigmas_i.flatten().detach().cpu().numpy(), loss_batch.flatten().detach().cpu().numpy(), alpha=0.5)
-        elif train_cfg.diffusion_type == 'interpolation':
-            ax.scatter(steps_proportion.flatten().detach().cpu().numpy(), loss_batch.flatten().detach().cpu().numpy(), alpha=0.5)
+        ax.scatter(sigmas_i.flatten().detach().cpu().numpy(), loss_batch.flatten().detach().cpu().numpy(), alpha=0.5)
         fig.savefig(os.path.join(save_path,str(i_train)+'_loss_per_timestep.jpeg'))
         plt.close(fig)
 
@@ -323,17 +289,12 @@ for i_train in range(train_cfg.n_train_steps):
         with torch.no_grad():
             z = torch.randn_like(batch_real_data)
 
-            if train_cfg.diffusion_type == 'var_exp':
-                steps = torch.zeros((len(batch_real_data))) + current_n_step - 1
-                sigmas_i = sigmas[steps.long()].to(batch_real_data.device)
-                sigmas_i = sigmas_i.view(sigmas_i.shape[0], 1, 1, 1)
-                generations = unet(z * sigmas_i, sigmas_i)
-                generations_ema = unet_ema(z * sigmas_i, sigmas_i)
-            elif train_cfg.diffusion_type == 'interpolation':
-                steps = torch.ones((len(batch_real_data))).to(batch_real_data.device)
-                generations = unet(z,steps)
-                generations_ema = unet_ema(z,steps)
-
+            steps = torch.zeros((len(batch_real_data))) + current_n_step - 1
+            sigmas_i = sigmas[steps.long()].to(batch_real_data.device)
+            sigmas_i = sigmas_i.view(sigmas_i.shape[0], 1, 1, 1)
+            generations = unet(z * sigmas_i, sigmas_i)
+            generations_ema = unet_ema(z * sigmas_i, sigmas_i)
+            
             generations = torch.clip(generations,-1,1)
             generations_ema = torch.clip(generations_ema,-1,1)
         torchvision.utils.save_image(generations,os.path.join(save_path,'generations_'+str(i_train)+'.jpeg'),normalize=True)
