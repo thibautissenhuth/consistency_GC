@@ -44,8 +44,8 @@ The *mix_gen_induced_traj* parameter in config file handles the percentage of ge
 If you find the code useful for your research, please consider citing:
 ```bib
 @article{issenhuth2024improving,
-  title={Improving Consistency Models with Generator-Induced Coupling},
-  author={Issenhuth, Thibaut and Santos, Ludovic Dos and Franceschi, Jean-Yves and Rakotomamonjy, Alain},
+  title={Improving Consistency Models with Generator-Induced Flows},
+  author={Issenhuth, Thibaut and Lee, Sangchul and Santos, Ludovic Dos and Franceschi, Jean-Yves and Kim, Chansoo and Rakotomamonjy, Alain},
   journal={arXiv preprint arXiv:2406.09570},
   year={2024}
 }
