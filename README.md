@@ -15,7 +15,7 @@
 
 ## Improving Consistency Models with Generator-Induced Coupling
 
-Official implementation of the paper *Improving Consistency Models with Generator-Induced Coupling* (Thibaut Issenhuth, Ludovic Dos Santos, Jean-Yves Franceschi, Alain Rakotomamonjy).
+Official implementation of the paper *Improving Consistency Models with Generator-Induced Flows* (Thibaut Issenhuth, Sangchul Lee, Ludovic Dos Santos, Jean-Yves Franceschi, Chansoo Kim, Alain Rakotomamonjy).
 
 
 ## [Preprint](https://arxiv.org/abs/2406.09570) 
