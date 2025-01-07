@@ -30,12 +30,12 @@ Python libraries: See [requirements.txt](./requirements.txt).
 To train a base consistency model on CIFAR-10, run:
 
 ```.bash
-torchrun --nproc_per_node=1 train_consistency.py --cfg cifar10_Base --eval_fid 1 --eval_freq 5000
+torchrun --nproc_per_node=1 train_consistency.py --cfg cifar10_base --eval_fid 1 --eval_freq 5000
 ```
 
 To train a consistency model with 50% generator-induced trajectories on CIFAR-10, run: 
 ```.bash
-torchrun --nproc_per_node=1 train_consistency.py --cfg cifar10_GenInduced_ema_mix50 --eval_fid 1 --eval_freq 5000
+torchrun --nproc_per_node=1 train_consistency.py --cfg cifar10_GC_mix50 --eval_fid 1 --eval_freq 5000
 ```
 
 The *mix_gen_induced_traj* parameter in config file handles the percentage of generator-induced trajectories per batch. 

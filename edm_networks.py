@@ -317,11 +317,6 @@ class SongUNet(torch.nn.Module):
         init = dict(init_mode='xavier_uniform')
         init_zero = dict(init_mode='xavier_uniform', init_weight=1e-5)
         init_attn = dict(init_mode='xavier_uniform', init_weight=np.sqrt(0.2))
-        '''block_kwargs = dict(
-            emb_channels=emb_channels, num_heads=1, dropout=dropout, skip_scale=np.sqrt(0.5), eps=1e-6,
-            resample_filter=resample_filter, resample_proj=True, adaptive_scale=False,
-            init=init, init_zero=init_zero, init_attn=init_attn,
-        )'''
         block_kwargs = dict(
             emb_channels=emb_channels, num_heads=1, skip_scale=np.sqrt(0.5), eps=1e-6,
             resample_filter=resample_filter, resample_proj=True, adaptive_scale=False,
@@ -330,13 +325,6 @@ class SongUNet(torch.nn.Module):
 
         self.consistency = consistency
         self.div_factor_cfunc = div_factor_cfunc
-
-        print('before : ',dropout)
-        if OmegaConf.is_config(dropout):
-            dropout = OmegaConf.to_object(dropout)
-        print('after : ', dropout)
-        if OmegaConf.is_config(num_blocks):
-            num_blocks = OmegaConf.to_object(num_blocks)
 
         # Mapping.
         if embedding_type == 'positional':
@@ -358,12 +346,12 @@ class SongUNet(torch.nn.Module):
 
             if isinstance(num_blocks, list):
                 num_blocks_i = num_blocks[level]
-            elif isinstance(num_blocks, int):
+            else:
                 num_blocks_i = num_blocks
 
             if isinstance(dropout, list):
                 dropout_i = dropout[level]
-            elif isinstance(dropout, int):
+            else:
                 dropout_i = dropout
 
             res = img_resolution >> level
