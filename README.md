@@ -13,9 +13,9 @@
 # limitations under the License. -->
 
 
-## Improving Consistency Models with Generator-Induced Coupling
+## Improving Consistency Models with Generator-Augmented Flows
 
-Official implementation of the paper *Improving Consistency Models with Generator-Induced Flows* (Thibaut Issenhuth, Sangchul Lee, Ludovic Dos Santos, Jean-Yves Franceschi, Chansoo Kim, Alain Rakotomamonjy).
+Official implementation of the paper *Improving Consistency Models with Generator-Augmented Flows* (Thibaut Issenhuth, Sangchul Lee, Ludovic Dos Santos, Jean-Yves Franceschi, Chansoo Kim, Alain Rakotomamonjy).
 
 
 ## [Preprint](https://arxiv.org/abs/2406.09570) 
@@ -43,10 +43,10 @@ The *mix_gen_induced_traj* parameter in config file handles the percentage of ge
 ## References
 If you find the code useful for your research, please consider citing:
 ```bib
-@article{issenhuth2024improving,
-  title={Improving Consistency Models with Generator-Induced Flows},
-  author={Issenhuth, Thibaut and Lee, Sangchul and Santos, Ludovic Dos and Franceschi, Jean-Yves and Kim, Chansoo and Rakotomamonjy, Alain},
-  journal={arXiv preprint arXiv:2406.09570},
-  year={2024}
+@inproceedings{GenAugFlows,
+  title={Improving Consistency Models with Generator-Augmented Flows},
+  author={Issenhuth, Thibaut and Lee, Sangchul and Dos Santos, Ludovic and Franceschi, Jean-Yves and Kim, Chansoo and Rakotomamonjy, Alain},
+  booktitle={Forty-second International Conference on Machine Learning},
+  year={2025},
 }
 ```
