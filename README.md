@@ -13,12 +13,16 @@
 # limitations under the License. -->
 
 
-## Improving Consistency Models with Generator-Augmented Flows
+## Improving Consistency Models with Generator-Augmented Flows (ICML Spotlight 2025)
 
 Official implementation of the paper *Improving Consistency Models with Generator-Augmented Flows* (Thibaut Issenhuth, Sangchul Lee, Ludovic Dos Santos, Jean-Yves Franceschi, Chansoo Kim, Alain Rakotomamonjy).
 
 
 ## [Preprint](https://arxiv.org/abs/2406.09570) 
+
+## Poster
+
+[![Poster](docs/poster.png)](docs/poster_GC.png)
 
 
 ## Requirements
