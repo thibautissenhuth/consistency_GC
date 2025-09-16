@@ -22,7 +22,7 @@ Official implementation of the paper *Improving Consistency Models with Generato
 
 ## Poster
 
-[![Poster](docs/poster.png)](docs/poster_GC.png)
+![Poster image](docs/poster_GC.png)
 
 
 ## Requirements
